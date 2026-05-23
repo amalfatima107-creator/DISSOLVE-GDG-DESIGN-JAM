@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DISSOLVE™</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cyan: #00e5ff;
+  --red: #e84040;
+  --bg: #000000;
+  --text: #ffffff;
+  --muted: #cccccc;
+  --swamp1: #0a1a0a;
+  --swamp2: #1a2e10;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CUSTOM CURSOR ── */
+#cursor {
+  position: fixed;
+  width: 10px;
+  height: 22px;
+  background: var(--cyan);
+  border-radius: 3px;
+  pointer-events: none;
+  z-index: 99999;
+  box-shadow: 0 0 8px var(--cyan);
+  mix-blend-mode: screen;
+  opacity: 1;
+}
+
+/* ── PROGRESS BAR ── */
+#progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--swamp2), var(--cyan));
+  z-index: 9999;
+  transition: width 0.1s;
+  box-shadow: 0 0 6px var(--cyan);
+}
+
+/* ── TIME COUNTER ── */
+#timer {
+  position: fixed;
+  top: 14px; right: 18px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--cyan);
+  opacity: 0.7;
+  z-index: 9999;
+  letter-spacing: 0.05em;
+}
+
+/* ── NOISE OVERLAY ── */
+#noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* ════════════════════════════════
+   ZONE 1 — SWAMP INTRO
+════════════════════════════════ */
+#zone-swamp {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.swamp-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.95) 100%),
+    radial-gradient(ellipse at 50% 40%, rgba(10,26,10,0) 0%, rgba(0,0,0,0.4) 100%);
+  background-color: #0d1f0d;
+  /* Swamp scene painted in CSS + SVG inline */
+}
+
+/* SVG swamp scene */
+.swamp-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.swamp-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,0,0.85) 100%),
+    linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, transparent 30%, transparent 60%, rgba(0,0,0,0.98) 100%);
+}
+
+.zone1-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 35px 45px;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 30px;
+  backdrop-filter: blur(4px);
+  width: fit-content;
+  max-width: 90%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.brand-title {
+  font-family: 'Space Mono', monospace;
+  font-size: clamp(38px, 7vw, 70px);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #fff;
+  text-shadow: 0 0 30px rgba(0,229,255,0.3);
+  animation: titleFloat 4s ease-in-out infinite;
+  white-space: nowrap;
+}
+
+.brand-tm {
+  font-size: 0.35em;
+  vertical-align: super;
+  color: var(--cyan);
+}
+
+.tagline {
+  font-size: clamp(13px, 2.2vw, 18px);
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.2em;
+  margin-top: 18px;
+  font-weight: 300;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(0,0,0,0.8);
+}
+
+.sub-tagline {
+  font-size: clamp(11px, 1.5vw, 14px);
+  color: rgba(0,229,255,0.6);
+  letter-spacing: 0.15em;
+  margin-top: 10px;
+  font-style: italic;
+  text-shadow: 0 0 10px rgba(0,0,0,0.8);
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255,255,255,0.3);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  animation: fadeUpDown 2s ease-in-out infinite;
+}
+
+.scroll-hint::after {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(0,229,255,0.5), transparent);
+}
+
+@keyframes titleFloat {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes fadeUpDown {
+  0%,100% { opacity: 0.3; transform: translateX(-50%) translateY(0); }
+  50% { opacity: 0.7; transform: translateX(-50%) translateY(6px); }
+}
+
+/* ════════════════════════════════
+   ZONE 2 — TRANSITION (SCENIC)
+════════════════════════════════ */
+#zone-transition {
+  position: relative;
+  height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.scenic-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('scenic-background.jpg');
+  background-size: cover;
+  background-position: center 30%;
+  filter: saturate(0.6) brightness(0.7);
+}
+
+.scenic-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom,
+    rgba(0,0,0,0.4) 0%,
+    rgba(0,0,0,0.2) 20%,
+    rgba(0,0,0,0.15) 40%,
+    rgba(0,0,0,0.5) 75%,
+    rgba(0,0,0,0.95) 100%
+  );
+}
+
+.scenic-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: gridBreathe 4s ease-in-out infinite;
+}
+
+.scenic-text {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  font-family: 'Space Mono', monospace;
+  font-size: clamp(10px, 1.5vw, 13px);
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+}
+
+@keyframes gridBreathe {
+  0%,100% { background-size: 40px 40px; opacity: 0.6; }
+  50% { background-size: 42px 42px; opacity: 1; }
+}
+
+/* ════════════════════════════════
+   ZONE 3 — PRODUCT / SCI-FI
+════════════════════════════════ */
+#zone-product {
+  position: relative;
+  background: #000;
+  padding: 80px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(0,229,255,0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+/* ── THE STRIP ── */
+.strip-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0 60px;
+  height: 260px;
+}
+
+.strip-glow-ring {
+  position: absolute;
+  width: 160px; height: 280px;
+  border-radius: 20px;
+  background: radial-gradient(ellipse, rgba(0,229,255,0.15) 0%, transparent 70%);
+  filter: blur(20px);
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%,100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+.strip {
+  position: relative;
+  width: 90px;
+  height: 210px;
+  background: linear-gradient(160deg,
+    rgba(0,229,255,0.95) 0%,
+    rgba(0,180,220,0.85) 40%,
+    rgba(0,229,255,0.9) 70%,
+    rgba(180,255,255,0.8) 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.4);
+  box-shadow:
+    0 0 20px rgba(0,229,255,0.6),
+    0 0 50px rgba(0,229,255,0.3),
+    inset 0 0 20px rgba(255,255,255,0.15);
+  animation: stripFloat 2.5s ease-in-out infinite;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.strip::before {
+  content: '';
+  position: absolute;
+  top: 8px; left: 8px; right: 8px;
+  height: 50%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.strip-name {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(0,10,20,0.9);
+  letter-spacing: 0.15em;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.strip-dose {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  color: rgba(0,10,20,0.6);
+  letter-spacing: 0.1em;
+}
+
+.strip-line {
+  width: 60%;
+  height: 1px;
+  background: rgba(0,10,20,0.2);
+}
+
+@keyframes stripFloat {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* strip glitch */
+.strip.glitching {
+  animation: stripFloat 2.5s ease-in-out infinite, stripGlitch 0.3s steps(2) forwards;
+}
+
+@keyframes stripGlitch {
+  0% { transform: translateY(-5px) skewX(0deg); filter: hue-rotate(0deg); }
+  20% { transform: translateY(-5px) skewX(8deg) translateX(4px); filter: hue-rotate(90deg) brightness(1.4); }
+  40% { transform: translateY(-5px) skewX(-5deg) translateX(-3px); filter: hue-rotate(180deg); }
+  60% { transform: translateY(-5px) skewX(3deg) translateX(2px); filter: hue-rotate(270deg) brightness(1.2); }
+  80% { transform: translateY(-5px) skewX(-2deg); filter: hue-rotate(0deg); }
+  100% { transform: translateY(-5px) skewX(0deg); filter: none; }
+}
+
+/* ── PITCH ── */
+.pitch {
+  font-size: clamp(13px, 2vw, 16px);
+  color: rgba(0,229,255,0.7);
+  text-align: center;
+  max-width: 520px;
+  line-height: 1.8;
+  font-style: italic;
+  margin-bottom: 60px;
+  letter-spacing: 0.05em;
+}
+
+/* ── BENEFITS ── */
+.benefits-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  color: rgba(0,229,255,0.5);
+  text-transform: uppercase;
+  margin-bottom: 30px;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  max-width: 820px;
+  width: 100%;
+  margin-bottom: 70px;
+}
+
+.benefit-card {
+  border: 1px solid rgba(0,229,255,0.12);
+  padding: 20px 22px;
+  border-radius: 6px;
+  background: rgba(0,229,255,0.03);
+  transition: border-color 0.3s, background 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.benefit-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 2px; height: 0;
+  background: var(--cyan);
+  transition: height 0.3s;
+}
+
+.benefit-card:hover::before { height: 100%; }
+.benefit-card:hover {
+  border-color: rgba(0,229,255,0.35);
+  background: rgba(0,229,255,0.06);
+}
+
+.benefit-icon {
+  font-size: 22px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.benefit-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cyan);
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.benefit-desc {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+/* ── SIDE EFFECTS BUTTON ── */
+.se-button {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--red);
+  border: 1px solid var(--red);
+  background: transparent;
+  padding: 16px 40px;
+  cursor: none;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.3s, background 0.3s;
+  margin-bottom: 80px;
+}
+
+.se-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--red);
+  transform: translateX(-101%);
+  transition: transform 0.3s;
+  z-index: -1;
+}
+
+.se-button:hover { color: #000; }
+.se-button:hover::before { transform: translateX(0); }
+
+/* ── INSTRUCTIONS ── */
+.instructions {
+  max-width: 620px;
+  width: 100%;
+  border-left: 2px solid rgba(0,229,255,0.2);
+  padding: 30px 30px 30px 32px;
+  margin-bottom: 60px;
+  background: rgba(0,229,255,0.02);
+}
+
+.instructions-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.35em;
+  color: rgba(0,229,255,0.5);
+  margin-bottom: 22px;
+  text-transform: uppercase;
+}
+
+.instruction-step {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  line-height: 2;
+  margin-bottom: 10px;
+}
+
+.instruction-step strong {
+  color: rgba(255,255,255,0.85);
+}
+
+.instruction-warning {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--red);
+  margin-top: 18px;
+  line-height: 1.8;
+  opacity: 0.8;
+}
+
+/* ── FOOTER ── */
+footer {
+  background: #000;
+  border-top: 1px solid rgba(0,229,255,0.08);
+  padding: 30px 20px;
+  text-align: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 0.2em;
+}
+
+/* ════════════════════════════════
+   MODAL
+════════════════════════════════ */
+#modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+#modal-overlay.open { display: flex; }
+
+.modal {
+  width: min(680px, 94vw);
+  max-height: 82vh;
+  background: #050a05;
+  border: 1px solid rgba(232,64,64,0.3);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 0 60px rgba(232,64,64,0.1);
+}
+
+.modal-header {
+  padding: 24px 28px 16px;
+  border-bottom: 1px solid rgba(232,64,64,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.modal-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  color: var(--red);
+  text-transform: uppercase;
+}
+
+.modal-close {
+  background: none;
+  border: 1px solid rgba(232,64,64,0.4);
+  color: var(--red);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  padding: 6px 14px;
+  cursor: none;
+  letter-spacing: 0.1em;
+  transition: background 0.2s;
+}
+
+.modal-close:hover { background: rgba(232,64,64,0.1); }
+
+.modal-body {
+  overflow-y: auto;
+  padding: 24px 28px;
+  flex: 1;
+}
+
+.modal-body::-webkit-scrollbar { width: 3px; }
+.modal-body::-webkit-scrollbar-track { background: #000; }
+.modal-body::-webkit-scrollbar-thumb { background: var(--red); }
+
+.gaslight-insert {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--red);
+  opacity: 0.7;
+  margin-bottom: 20px;
+  font-style: italic;
+  display: none;
+}
+
+.se-item {
+  display: flex;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  opacity: 0;
+  animation: seReveal 0.3s forwards;
+}
+
+.se-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: rgba(232,64,64,0.4);
+  min-width: 28px;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+
+.se-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.9;
+}
+
+/* glitch reveal text */
+.se-text.glitching {
+  animation: textGlitch 0.4s steps(3) forwards;
+}
+
+@keyframes textGlitch {
+  0% { color: var(--cyan); letter-spacing: 0.3em; opacity: 0.3; }
+  33% { color: var(--red); letter-spacing: -0.02em; opacity: 0.7; }
+  66% { color: #fff; letter-spacing: 0.05em; opacity: 0.9; }
+  100% { color: rgba(255,255,255,0.6); letter-spacing: 0; opacity: 1; }
+}
+
+@keyframes seReveal {
+  from { opacity: 0; transform: translateX(-4px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ════════════════════════════════
+   PHILOSOPHICAL OVERLAY
+════════════════════════════════ */
+#phil-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.97);
+  z-index: 20000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 30px;
+  cursor: none;
+  text-align: center;
+  padding: 40px;
+}
+
+#phil-overlay.open { display: flex; }
+
+.phil-text {
+  font-family: 'Quicksand', sans-serif;
+  font-size: clamp(18px, 4vw, 32px);
+  font-weight: 300;
+  color: rgba(255,255,255,0.85);
+  max-width: 600px;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+}
+
+.phil-hint {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  animation: fadeUpDown 2s ease-in-out infinite;
+}
+
+/* ════════════════════════════════
+   TOAST
+════════════════════════════════ */
+#toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(0,0,0,0.9);
+  border: 1px solid rgba(0,229,255,0.2);
+  color: rgba(255,255,255,0.75);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  padding: 12px 22px;
+  border-radius: 3px;
+  z-index: 15000;
+  opacity: 0;
+  transition: opacity 0.4s, transform 0.4s;
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: 90vw;
+  letter-spacing: 0.05em;
+}
+
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* FARQUAAD */
+#farquaad {
+  position: fixed;
+  bottom: 20px;
+  right: -200px;
+  width: 130px;
+  z-index: 99999;
+  transition: right 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+#farquaad.peek {
+  right: 20px;
+}
+
+#farquaad img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 0 10px rgba(0,229,255,0.5));
+}
+
+.farquaad-bubble {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 10px;
+  background: black;
+  border: 1px solid #00e5ff;
+  color: white;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  z-index: 99999;
+  pointer-events: none;
+}
+
+/* Allow text to wrap on longer sentences */
+.farquaad-bubble {
+  white-space: normal;
+  max-width: 160px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+#farquaad.peek .farquaad-bubble {
+  opacity: 1;
+}
+
+/* ════════════════════════════════
+   CREATURE (CAT)
+════════════════════════════════ */
+#creature {
+  position: fixed;
+  bottom: 60px;
+  right: -220px;
+  width: 200px;
+  z-index: 8500;
+  pointer-events: none;
+  filter: drop-shadow(0 0 8px rgba(0,229,255,0.1));
+}
+
+#creature.running {
+  transition: right 3.5s linear;
+  right: calc(100vw + 220px);
+}
+
+#creature.mirror { transform: scaleX(-1); }
+/* scale handled via JS inline style — mirror flips on top via filter when needed */
+
+/* ════════════════════════════════
+   SCREEN SHAKE
+════════════════════════════════ */
+body.shake {
+  animation: screenShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
+}
+
+@keyframes screenShake {
+  0%,100% { transform: translate(0,0) rotate(0deg); }
+  10% { transform: translate(-3px, 1px) rotate(-0.3deg); }
+  20% { transform: translate(3px, -1px) rotate(0.3deg); }
+  30% { transform: translate(-2px, 2px) rotate(-0.2deg); }
+  40% { transform: translate(2px, -2px) rotate(0.2deg); }
+  50% { transform: translate(-1px, 1px) rotate(-0.1deg); }
+  60% { transform: translate(1px, -1px) rotate(0.1deg); }
+  70% { transform: translate(-2px, 1px) rotate(-0.1deg); }
+  80% { transform: translate(2px, -1px) rotate(0.1deg); }
+  90% { transform: translate(-1px, 0) rotate(0); }
+}
+
+/* ════════════════════════════════
+   TAB FLASH
+════════════════════════════════ */
+#tab-flash {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,229,255,0.04);
+  pointer-events: none;
+  z-index: 19999;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+#tab-flash.flash { opacity: 1; }
+
+/* ════════════════════════════════
+   SWAMP SVG BG
+════════════════════════════════ */
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+
+<!-- NOISE -->
+<div id="noise"></div>
+
+<!-- PROGRESS -->
+<div id="progress"></div>
+
+<!-- TIMER -->
+<div id="timer">you've been here: 0s</div>
+
+<!-- TAB FLASH -->
+<div id="tab-flash"></div>
+
+<!-- ════ ZONE 1: SWAMP ════ -->
+<section id="zone-swamp">
+  <!-- YOUR BACKGROUND IMAGE ONLY -->
+  <div class="swamp-bg" style="background-image: url('swamp-background.jpg'); background-size: cover; background-position: center;"></div>
+
+  <div class="swamp-vignette"></div>
+
+  <div class="zone1-content">
+    <h1 class="brand-title" id="brand-title">DISSOLVE<span class="brand-tm">™</span></h1>
+    <p class="tagline">Dissolves in seconds. Like your sense of self.</p>
+    <p class="sub-tagline">You scroll. You forget. You question. We have a strip for that.</p>
+  </div>
+
+  <div class="scroll-hint">scroll</div>
+</section>
+
+<!-- ════ ZONE 2: TRANSITION — SCENIC SHOT ════ -->
+<section id="zone-transition">
+  <div class="scenic-bg"></div>
+  <div class="scenic-fade"></div>
+  <div class="scenic-grid"></div>
+  <div class="scenic-text">far far away &nbsp;·&nbsp; the world you're leaving</div>
+</section>
+
+<!-- ════ ZONE 3: PRODUCT ════ -->
+<section id="zone-product">
+  <div class="grid-overlay"></div>
+
+  <!-- THE STRIP -->
+  <div class="strip-container">
+    <div class="strip-glow-ring"></div>
+    <div class="strip" id="the-strip">
+      <div class="strip-name">DISSOLVE<br>™</div>
+      <div class="strip-line"></div>
+      <div class="strip-dose">100mg</div>
+      <div class="strip-dose">SUBLINGUAL</div>
+    </div>
+  </div>
+
+  <p class="pitch">"You scroll. You forget. You question.<br>We have a strip for that."</p>
+
+  <!-- BENEFITS -->
+  <div class="benefits-title">— Clinical Benefits —</div>
+  <div class="benefits-grid">
+    <div class="benefit-card">
+      <span class="benefit-icon">⚡</span>
+      <div class="benefit-name">Fast Action</div>
+      <div class="benefit-desc">Dissolves in seconds. Like your sense of self.</div>
+    </div>
+    <div class="benefit-card">
+      <span class="benefit-icon">💊</span>
+      <div class="benefit-name">Bioavailability</div>
+      <div class="benefit-desc">Smaller dose. Bigger effect. Fewer questions.</div>
+    </div>
+    <div class="benefit-card">
+      <span class="benefit-icon">👁️</span>
+      <div class="benefit-name">Reality</div>
+      <div class="benefit-desc">What you're seeing is real. Probably. Don't check.</div>
+    </div>
+    <div class="benefit-card">
+      <span class="benefit-icon">👑</span>
+      <div class="benefit-name">Confidence</div>
+      <div class="benefit-desc">Makes you feel taller. Even if you're not.</div>
+    </div>
+    <div class="benefit-card">
+      <span class="benefit-icon">🧠</span>
+      <div class="benefit-name">Memory (Good)</div>
+      <div class="benefit-desc">Recalls what you forgot you forgot.</div>
+    </div>
+    <div class="benefit-card">
+      <span class="benefit-icon">😅</span>
+      <div class="benefit-name">Memory (Bad)</div>
+      <div class="benefit-desc">Forgets the embarrassing thing you said in 2017. Probably.</div>
+    </div>
+  </div>
+
+  <!-- SIDE EFFECTS BUTTON -->
+  <button class="se-button" id="se-btn">⚠ Read Side Effects</button>
+
+  <!-- INSTRUCTIONS -->
+  <div class="instructions">
+    <div class="instructions-title">📋 Instructions for Use</div>
+    <div class="instruction-step"><strong>1.</strong> Ensure your hands are completely dry.<br>
+    <span style="opacity:0.5;">(Moisture activates the strip early. Like anxiety.)</span></div>
+    <div class="instruction-step"><strong>2.</strong> Place under your tongue.<br>
+    <span style="opacity:0.5;">Not on top. Under. That's where truth lives.</span></div>
+    <div class="instruction-step"><strong>3.</strong> Do not chew. Do not speak. Do not question.</div>
+    <div class="instruction-step"><strong>4.</strong> Allow 45 seconds to dissolve completely.<br>
+    <span style="opacity:0.5;">(Or 45 hours. Time may vary. Your perception is not reliable.)</span></div>
+    <div class="instruction-step"><strong>5.</strong> Do not drink water immediately after.<br>
+    <span style="opacity:0.5;">It will wash away the strip's effects. Some say that's better. We don't.</span></div>
+    <div class="instruction-warning">⚠️ If you feel your sense of self fading, that's normal.<br>That's the product working. Don't fight it.</div>
+  </div>
+
+  <footer>
+    DISSOLVE™ — A product of uncertain origin. Not approved by any body. Including yours.<br>
+    Consult your doctor. Your doctor will also need to consult their doctor.<br><br>
+    Results may vary. You may vary.<br><br>
+    © <span id="footer-year">2026</span> DISSOLVE CORP. All selves reserved. Some selves dissolved. One self unaccounted for.
+  </footer>
+</section>
+
+<!-- ════ MODAL ════ -->
+<div id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⚠ DISSOLVE™ — Side Effects</div>
+      <button class="modal-close" id="modal-close">[ CLOSE ]</button>
+    </div>
+    <div class="modal-body" id="modal-body">
+      <div class="gaslight-insert" id="gaslight-insert">
+        Funny... this list looks different from last time. Doesn't it?
+      </div>
+      <div id="se-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PHILOSOPHICAL OVERLAY ════ -->
+<div id="phil-overlay">
+  <div class="phil-text" id="phil-text"></div>
+  <div class="phil-hint">tap anywhere to continue</div>
+</div>
+
+<!-- ════ TOAST ════ -->
+<div id="toast"></div>
+
+<!-- ════ FARQUAAD ════ -->
+<div id="farquaad">
+  <div class="farquaad-bubble" id="farquaad-bubble">You call that a decision?</div>
+  <!-- YOUR Farquaad image -->
+  <img src="farquaad.png" alt="Lord Farquaad" style="width: 100%; height: auto; display: block;">
+</div>
+
+<!-- ════ CREATURE ════ -->
+<div id="creature">
+  <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="catFur" cx="0.5" cy="0.4" r="0.7">
+        <stop offset="0%" stop-color="#fdfaf7"/>
+        <stop offset="70%" stop-color="#ece4ee"/>
+        <stop offset="100%" stop-color="#c8bdce"/>
+      </radialGradient>
+      <filter id="furBlur"><feGaussianBlur stdDeviation="0.4"/></filter>
+    </defs>
+    <g class="cat-tail-anim" style="transform-origin:170px 110px;">
+      <path d="M170 110 Q188 95 184 72 Q182 58 174 60 Q180 78 168 96 Z" fill="url(#catFur)" stroke="#9a8fa6" stroke-width="0.8"/>
+      <path d="M178 64 Q182 68 178 72" stroke="#7a6e88" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M175 76 Q180 80 175 84" stroke="#7a6e88" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M172 88 Q177 92 171 96" stroke="#7a6e88" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </g>
+    <g class="cat-leg-fl" style="transform-origin:78px 118px;">
+      <path d="M72 118 Q70 132 73 140 L84 140 Q87 132 85 118 Z" fill="#d8cedc"/>
+      <ellipse cx="74" cy="141" rx="3" ry="2.2" fill="#b8a8c0"/>
+      <ellipse cx="78.5" cy="142" rx="3" ry="2.2" fill="#b8a8c0"/>
+      <ellipse cx="83" cy="141" rx="3" ry="2.2" fill="#b8a8c0"/>
+    </g>
+    <g class="cat-leg-fr" style="transform-origin:104px 118px;">
+      <path d="M98 118 Q96 132 99 140 L110 140 Q113 132 111 118 Z" fill="#d0c4d4"/>
+      <ellipse cx="100" cy="141" rx="3" ry="2.2" fill="#a89cb0"/>
+      <ellipse cx="104.5" cy="142" rx="3" ry="2.2" fill="#a89cb0"/>
+      <ellipse cx="109" cy="141" rx="3" ry="2.2" fill="#a89cb0"/>
+    </g>
+    <g class="cat-leg-bl" style="transform-origin:62px 122px;">
+      <path d="M56 122 Q54 134 57 142 L68 142 Q71 134 69 122 Z" fill="#c8bdce"/>
+      <ellipse cx="58" cy="143" rx="2.8" ry="2" fill="#9c8ea6"/>
+      <ellipse cx="62.5" cy="144" rx="2.8" ry="2" fill="#9c8ea6"/>
+      <ellipse cx="67" cy="143" rx="2.8" ry="2" fill="#9c8ea6"/>
+    </g>
+    <g class="cat-leg-br" style="transform-origin:122px 122px;">
+      <path d="M116 122 Q114 134 117 142 L128 142 Q131 134 129 122 Z" fill="#c0b5c6"/>
+      <ellipse cx="118" cy="143" rx="2.8" ry="2" fill="#948698"/>
+      <ellipse cx="122.5" cy="144" rx="2.8" ry="2" fill="#948698"/>
+      <ellipse cx="127" cy="143" rx="2.8" ry="2" fill="#948698"/>
+    </g>
+    <g class="cat-body-anim">
+      <path d="M30 110 L26 102 L32 100 L28 92 L36 88 L30 78 L40 74 L36 64 L46 60 L44 50 L54 52 L52 42 L62 48 L66 38 L74 46 L80 36 L86 46 L94 38 L100 48 L108 40 L114 50 L124 46 L126 56 L136 54 L134 64 L144 66 L140 76 L150 80 L146 90 L156 94 L150 102 L158 108 L150 114 L156 122 L146 124 L144 132 L52 132 L48 124 L36 122 L40 114 L30 110 Z" fill="url(#catFur)" stroke="#8a7e96" stroke-width="1" filter="url(#furBlur)"/>
+      <path d="M40 70 Q90 30 140 70 Q140 90 90 88 Q40 90 40 70 Z" fill="#c8bdce" opacity="0.55"/>
+      <ellipse cx="62" cy="100" rx="30" ry="24" fill="url(#catFur)" stroke="#8a7e96" stroke-width="0.8"/>
+      <path d="M42 82 Q40 72 50 78 Z" fill="#d8cedc" stroke="#9a8fa6" stroke-width="0.6"/>
+      <path d="M48 79 Q49 74 52 78 Z" fill="#e8b8c8" opacity="0.8"/>
+      <path d="M80 82 Q82 72 76 78 Z" fill="#d8cedc" stroke="#9a8fa6" stroke-width="0.6"/>
+      <path d="M76 79 Q77 74 80 78 Z" fill="#e8b8c8" opacity="0.8"/>
+      <ellipse cx="48" cy="104" rx="14" ry="10" fill="#f2c0d0" opacity="0.55"/>
+      <g class="cat-eye-anim" style="transform-origin:48px 104px;">
+        <ellipse cx="48" cy="104" rx="11" ry="6.5" fill="#fefcf7"/>
+        <ellipse cx="48" cy="105" rx="6" ry="4" fill="#a89a6a"/>
+        <ellipse cx="48" cy="105" rx="2.5" ry="3.5" fill="#1a1218"/>
+        <path d="M36 104 Q48 92 60 104 Q60 100 48 96 Q36 100 36 104 Z" fill="#d8cedc" stroke="#9a8fa6" stroke-width="0.6"/>
+        <path d="M36 105 Q48 116 60 105 Q60 112 48 114 Q36 112 36 105 Z" fill="#e8c0d0" stroke="#b88ea0" stroke-width="0.7"/>
+        <circle cx="50" cy="103" r="1.4" fill="white" opacity="0.9"/>
+      </g>
+      <ellipse cx="76" cy="104" rx="13" ry="9" fill="#f2c0d0" opacity="0.55"/>
+      <g class="cat-eye-anim" style="transform-origin:76px 104px; animation-delay:0.3s;">
+        <ellipse cx="76" cy="104" rx="10" ry="6" fill="#fefcf7"/>
+        <ellipse cx="76" cy="105" rx="5.5" ry="3.8" fill="#a89a6a"/>
+        <ellipse cx="76" cy="105" rx="2.3" ry="3.3" fill="#1a1218"/>
+        <path d="M66 104 Q76 92 86 104 Q86 100 76 96 Q66 100 66 104 Z" fill="#d8cedc" stroke="#9a8fa6" stroke-width="0.6"/>
+        <path d="M66 105 Q76 115 86 105 Q86 112 76 113 Q66 112 66 105 Z" fill="#e8c0d0" stroke="#b88ea0" stroke-width="0.7"/>
+        <circle cx="78" cy="103" r="1.3" fill="white" opacity="0.9"/>
+      </g>
+      <ellipse cx="60" cy="116" rx="3.2" ry="2.2" fill="#d48aa0"/>
+      <path d="M60 118 L58 121 M60 118 L62 121" stroke="#a86680" stroke-width="0.6" fill="none"/>
+      <path d="M55 122 Q60 125 65 122" stroke="#a86680" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    </g>
+  </svg>
+</div>
+
+<style>
+@keyframes cat-leg-fl { 0%,100%{transform:rotate(-25deg)} 50%{transform:rotate(25deg)} }
+@keyframes cat-leg-fr { 0%,100%{transform:rotate(20deg)} 50%{transform:rotate(-25deg)} }
+@keyframes cat-leg-bl { 0%,100%{transform:rotate(-20deg)} 50%{transform:rotate(20deg)} }
+@keyframes cat-leg-br { 0%,100%{transform:rotate(25deg)} 50%{transform:rotate(-20deg)} }
+@keyframes cat-body-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+@keyframes cat-tail { 0%,100%{transform:rotate(-10deg)} 50%{transform:rotate(15deg)} }
+@keyframes cat-eye-heavy { 0%,45%,55%,100%{transform:scaleY(1)} 50%{transform:scaleY(0.15)} }
+.cat-body-anim { animation: cat-body-bob 0.28s ease-in-out infinite; }
+.cat-leg-fl { transform-origin:50% 0%; animation: cat-leg-fl 0.28s ease-in-out infinite; }
+.cat-leg-fr { transform-origin:50% 0%; animation: cat-leg-fr 0.28s ease-in-out infinite; }
+.cat-leg-bl { transform-origin:50% 0%; animation: cat-leg-bl 0.28s ease-in-out infinite; }
+.cat-leg-br { transform-origin:50% 0%; animation: cat-leg-br 0.28s ease-in-out infinite; }
+.cat-tail-anim { transform-origin:100% 100%; animation: cat-tail 0.7s ease-in-out infinite; }
+.cat-eye-anim { transform-origin:50% 60%; animation: cat-eye-heavy 2.2s ease-in-out infinite; }
+</style>
+
+<script>
+// ── DATA ──
+const sideEffects = [
+  "You will see something in the corner of your eye. It looks back. You blink. It's closer. You blink again. It's you.",
+  "Lord Farquaad appears. He doesn't speak. He doesn't need to. You already know what you did.",
+  "Your opinions feel borrowed. Like you read them somewhere and forgot to return them. Late fees apply.",
+  "You check your phone. You don't know why. You check it again. Nothing changed. You did. You check again.",
+  "You forget why you walked into this room. Then you forget you forgot. Then you feel fine. That's the worst part.",
+  "You try to remember who you were before everyone told you who to be. A loading symbol appears. It never stops.",
+  "A thought surfaces. It almost makes sense. Then it leaves. You try to describe it to someone. They look at you the way Farquaad looks at everyone.",
+  "You look in the mirror. You recognize the face. The face does not seem to recognize you.",
+  "You agree with someone you completely disagree with. You hear yourself. You sound very convincing. That's the worst part.",
+  "The strip dissolves under your tongue. Something leaves with it. You can't name it. That's been the name this whole time.",
+  "You see someone being authentic. Your body produces a feeling. Medical literature calls it discomfort. You call it nothing. You look away.",
+  "Your reflection blinks half a second after you do. You make a note to mention this to someone. You forget. It was probably fine.",
+  "A memory surfaces. It's not yours. You feel sad about it anyway. You mourn a thing that never happened to you. The strip says: you're welcome.",
+  "Farquaad nods slowly. You feel a flicker of pride. Then you understand: he's not proud of you. He's proud of what's replacing you.",
+  "You laugh at something you don't find funny. Everyone else laughs. You laugh harder. Somewhere, the creature stops running. It just watches.",
+  "Time slows. Then accelerates. Your clock says 3:00 PM. Your body says it has been 3:00 PM for eleven years.",
+  "You try to describe what's happening to you. You open your mouth. The words have been pre-dissolved. Standard.",
+  "You scroll to the bottom of this list. You do not remember the top. You consider starting over. You have already started over. This is the third time.",
+  "You forget whether you took the strip or are still deciding. You check your mouth. Nothing there. Nothing anywhere. The packaging is empty. It has always been empty.",
+  "You reach the end. You feel nothing unusual. That is not the strip failing. That is the strip working perfectly. You are exactly what we needed. Thank you for your cooperation."
+];
+
+const toastMessages = [
+  "👀 Did you see something? No? Okay.",
+  "🐾 What creature? See? You're seeing things. Just take the strip.",
+  "Bruh you're schizo as hell.. Not looking good..",
+  "💭 You're imagining things. Probably.",
+  "🌀 Wait... have you read this before?",
+  "🤔 Does the strip cause this... or do you need the strip because of this?",
+  "⚠️ Side effect or symptom? That's for you to figure out.",
+  "🌍 What if the world was never normal? What if the strip just showed you?"
+];
+
+const farquaadLines = [
+  "You call that a decision?",
+  "I expected better.",
+  "Dissolve. Comply. Move on.",
+  "Disappointing. As usual.",
+  "You hocus pocus, stop wasting my time!",
+  "Hasten up now, would you?",
+  "I'm not the monster here, YOU are!",
+  "Congratulations, ogre. You get NOTHING for wasting my time.",
+  "Any longer and you suffer, little peasant."
+];
+
+const philQuestions = [
+  "Was the creature a side effect... or were you always seeing things?",
+  "Are the side effects getting worse... or are you just paying attention now?",
+  "What if the world was never normal? What if the strip just made you notice?",
+  "You've opened this four times. The strip doesn't exist. The chaos was always you. ...or was it?"
+];
+
+const titleMutations = [
+  "DISSOLVE™", "DISSOLVE™", "DISSOLVE?", "DISSOLVE??", "???", "DISSOLVE...", "DISSOLVE™", "DISSOLVE™"
+];
+
+// ── STATE ──
+let modalOpenCount = 0;
+let creatureSightings = 0;
+let timeElapsed = 0;
+let mutationIndex = 0;
+
+// ── CURSOR ──
+const cursor = document.getElementById('cursor');
+let mouseX = window.innerWidth / 2;
+let mouseY = window.innerHeight / 2;
+let cursX = mouseX;
+let cursY = mouseY;
+
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+});
+
+function animateCursor() {
+  cursX += (mouseX - cursX) * 0.2;
+  cursY += (mouseY - cursY) * 0.2;
+  cursor.style.transform = `translate(${cursX}px, ${cursY}px) translate(-50%, -50%)`;
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+// ── PROGRESS BAR ──
+window.addEventListener('scroll', () => {
+  const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+  document.getElementById('progress').style.width = pct + '%';
+  if (pct > 70 && Math.random() > 0.95) showToast(toastMessages[Math.floor(Math.random() * toastMessages.length)]);
+});
+
+// ── TIMER ──
+const timerEl = document.getElementById('timer');
+setInterval(() => {
+  const r = Math.random();
+  if (r < 0.6) timeElapsed += 1;
+  else if (r < 0.75) timeElapsed += Math.floor(Math.random() * 4) + 2;
+  else if (r < 0.85) {} // freeze
+  else if (timeElapsed > 5) timeElapsed -= Math.floor(Math.random() * 3) + 1;
+  timerEl.textContent = `you've been here: ${timeElapsed}s`;
+}, 1000);
+
+// ── TITLE MUTATION ──
+function mutateTitles() {
+  mutationIndex = (mutationIndex + 1) % titleMutations.length;
+  const el = document.getElementById('brand-title');
+  if (el) {
+    const tm = el.querySelector('.brand-tm');
+    el.childNodes[0].textContent = titleMutations[mutationIndex].replace('™', '');
+    if (tm) tm.textContent = titleMutations[mutationIndex].includes('™') ? '™' : '';
+  }
+  setTimeout(mutateTitles, 8000 + Math.random() * 12000);
+}
+setTimeout(mutateTitles, 10000);
+
+// ── TOAST ──
+let toastTimeout;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── SCREEN SHAKE ──
+function shake() {
+  document.body.classList.add('shake');
+  setTimeout(() => document.body.classList.remove('shake'), 500);
+}
+
+// ── STRIP GLITCH ──
+function glitchStrip() {
+  const strip = document.getElementById('the-strip');
+  strip.classList.add('glitching');
+  setTimeout(() => strip.classList.remove('glitching'), 400);
+  const delay = 8000 + Math.random() * 7000;
+  setTimeout(glitchStrip, delay);
+}
+setTimeout(glitchStrip, 8000);
+
+// ── PHILOSOPHICAL OVERLAY ──
+let philIndex = 0;
+function showPhil(question) {
+  const overlay = document.getElementById('phil-overlay');
+  const text = document.getElementById('phil-text');
+  text.textContent = question || philQuestions[philIndex % philQuestions.length];
+  philIndex++;
+  overlay.classList.add('open');
+}
+document.getElementById('phil-overlay').addEventListener('click', () => {
+  document.getElementById('phil-overlay').classList.remove('open');
+});
+
+// ── MODAL ──
+const seBtn = document.getElementById('se-btn');
+const modalOverlay = document.getElementById('modal-overlay');
+const modalClose = document.getElementById('modal-close');
+const seList = document.getElementById('se-list');
+const gaslightInsert = document.getElementById('gaslight-insert');
+
+function buildSEList() {
+  seList.innerHTML = '';
+  sideEffects.forEach((effect, i) => {
+    const item = document.createElement('div');
+    item.className = 'se-item';
+    item.style.animationDelay = (i * 0.04) + 's';
+    const num = document.createElement('div');
+    num.className = 'se-num';
+    num.textContent = String(i + 1).padStart(2, '0') + '.';
+    const text = document.createElement('div');
+    text.className = 'se-text glitching';
+    text.textContent = effect;
+    setTimeout(() => text.classList.remove('glitching'), 400 + i * 60);
+    item.appendChild(num);
+    item.appendChild(text);
+    seList.appendChild(item);
+  });
+}
+
+seBtn.addEventListener('click', () => {
+  modalOpenCount++;
+  shake();
+  buildSEList();
+  if (modalOpenCount >= 2) {
+    gaslightInsert.style.display = 'block';
+  }
+  modalOverlay.classList.add('open');
+  // Re-glitch some items randomly
+  setTimeout(() => {
+    const items = seList.querySelectorAll('.se-text');
+    items.forEach(item => {
+      if (Math.random() > 0.7) {
+        item.classList.add('glitching');
+        setTimeout(() => item.classList.remove('glitching'), 500);
+      }
+    });
+  }, 1200);
+});
+
+modalClose.addEventListener('click', () => {
+  modalOverlay.classList.remove('open');
+  if (modalOpenCount === 3) {
+    setTimeout(() => showPhil(), 600);
+  }
+  if (modalOpenCount >= 4) {
+    setTimeout(() => showPhil(philQuestions[3]), 600);
+  }
+});
+
+modalOverlay.addEventListener('click', e => {
+  if (e.target === modalOverlay) {
+    modalOverlay.classList.remove('open');
+    if (modalOpenCount === 3) setTimeout(() => showPhil(), 600);
+    if (modalOpenCount >= 4) setTimeout(() => showPhil(philQuestions[3]), 600);
+  }
+});
+
+// Random re-glitch while modal open
+setInterval(() => {
+  if (modalOverlay.classList.contains('open')) {
+    const items = seList.querySelectorAll('.se-text');
+    if (items.length) {
+      const idx = Math.floor(Math.random() * items.length);
+      items[idx].classList.add('glitching');
+      setTimeout(() => items[idx].classList.remove('glitching'), 400);
+    }
+  }
+}, 3000);
+
+// ── FARQUAAD ──
+const farquaad = document.getElementById('farquaad');
+const farquaadBubble = document.getElementById('farquaad-bubble');
+
+function spawnFarquaad() {
+  farquaadBubble.textContent = farquaadLines[Math.floor(Math.random() * farquaadLines.length)];
+  farquaad.classList.add('peek');
+  setTimeout(() => farquaad.classList.remove('peek'), 5000);
+  const next = 20000 + Math.random() * 20000;
+  setTimeout(spawnFarquaad, next);
+}
+setTimeout(spawnFarquaad, 12000);
+
+// ── CREATURE ──
+const creature = document.getElementById('creature');
+
+function setCreatureTransform(scale, mirror) {
+  const flipX = mirror ? -scale : scale;
+  creature.style.transform = `scaleX(${flipX}) scaleY(${scale})`;
+}
+
+function spawnCreature() {
+  creatureSightings++;
+  const goLeft = creatureSightings % 4 === 0;
+
+  // Size grows per sighting, capped at 1.4
+  const scale = Math.min(1.4, 1 + (creatureSightings - 1) * 0.045);
+
+  // ── SIGHTING 10+: stops center screen and watches ──
+  if (creatureSightings >= 10) {
+    // Reset any leftover positioning first
+    creature.style.transition = 'none';
+    creature.style.right = 'auto';
+    creature.style.left = '-300px';
+    void creature.offsetWidth;
+
+    // Slide to center slowly
+    creature.style.transition = 'left 1.8s ease-out';
+    creature.style.left = (window.innerWidth / 2 - 100) + 'px';
+    setCreatureTransform(scale, true); // face viewer
+
+    showToast("🐾 It stopped running. It's just watching now.");
+
+    // Phil after 3s of staring
+    setTimeout(() => showPhil("You've seen it ten times. It used to run. Now it just watches. You stopped chasing first."), 3000);
+
+    // Fade out after 5s
+    setTimeout(() => {
+      creature.style.transition = 'opacity 2s ease';
+      creature.style.opacity = '0';
+      // Reset fully after fade
+      setTimeout(() => {
+        creature.style.transition = 'none';
+        creature.style.opacity = '1';
+        creature.style.left = 'auto';
+        creature.style.right = '-220px';
+        setCreatureTransform(1, false);
+      }, 2200);
+    }, 5000);
+
+    setTimeout(spawnCreature, 22000 + Math.random() * 15000);
+    return;
+  }
+
+  // ── SIGHTINGS 1–9: runs across, faster + bigger each time ──
+  // Speed: 3.5s → 1.2s minimum
+  const speed = Math.max(1.2, 3.5 - (creatureSightings - 1) * 0.25);
+
+  if (goLeft) {
+    creature.style.transition = 'none';
+    creature.style.right = 'auto';
+    creature.style.left = (window.innerWidth + 220) + 'px';
+    setCreatureTransform(scale, false);
+    void creature.offsetWidth;
+    creature.style.transition = `left ${speed}s linear`;
+    creature.style.left = '-300px';
+  } else {
+    creature.style.transition = 'none';
+    creature.style.left = 'auto';
+    creature.style.right = (window.innerWidth + 220) + 'px';
+    setCreatureTransform(scale, true);
+    void creature.offsetWidth;
+    creature.style.transition = `right ${speed}s linear`;
+    creature.style.right = '-300px';
+  }
+
+  // Toast varies by sighting
+  if (creatureSightings <= 3) {
+    showToast(toastMessages[Math.floor(Math.random() * 3)]);
+  } else if (creatureSightings <= 6) {
+    showToast("🐾 It's faster than last time. Or maybe you're just slower.");
+  } else {
+    showToast("🐾 It's getting bigger. You're not imagining it.");
+  }
+
+  // Phil every 5
+  if (creatureSightings % 5 === 0) {
+    setTimeout(() => showPhil(), 2000);
+  }
+
+  // Reset position cleanly after it finishes crossing — use actual speed + buffer
+  setTimeout(() => {
+    creature.style.transition = 'none';
+    creature.style.left = 'auto';
+    creature.style.right = '-220px';
+    setCreatureTransform(1, false);
+  }, (speed * 1000) + 600);
+
+  const next = 15000 + Math.random() * 25000;
+  setTimeout(spawnCreature, next);
+}
+setTimeout(spawnCreature, 6000 + Math.random() * 4000);
+
+// ── TAB VISIBILITY ──
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    const flash = document.getElementById('tab-flash');
+    flash.classList.add('flash');
+    setTimeout(() => flash.classList.remove('flash'), 200);
+    setTimeout(() => showToast("🌀 Something changed while you were gone."), 400);
+  }
+});
+
+// ── FOOTER YEAR GLITCH ──
+const yearEl = document.getElementById('footer-year');
+let glitchTimeout = null;
+
+function glitchYearSequence() {
+  if (!yearEl) return;
+  
+  yearEl.textContent = '2026';
+  yearEl.style.color = '';
+  
+  setTimeout(() => {
+    // First glitch: 1504 for 5 seconds
+    yearEl.textContent = '1504';
+    yearEl.style.color = '#e84040';
+    
+    setTimeout(() => {
+      // Back to 2026
+      yearEl.textContent = '2026';
+      yearEl.style.color = '';
+      
+      setTimeout(() => {
+        // Second glitch: 3077 for 5 seconds
+        yearEl.textContent = '3077';
+        yearEl.style.color = '#e84040';
+        
+        setTimeout(() => {
+          // Back to 2026 — stays until next cycle
+          yearEl.textContent = '2026';
+          yearEl.style.color = '';
+          
+          // Schedule next full cycle (30-45 seconds later)
+          glitchTimeout = setTimeout(glitchYearSequence, 35000 + Math.random() * 15000);
+        }, 5000);
+      }, 8000);
+    }, 5000);
+  }, 2000);
+}
+
+// Start the sequence
+setTimeout(glitchYearSequence, 5000);
+
+// ── RANDOM AMBIENT TOASTS ──
+function randomToast() {
+  showToast(toastMessages[Math.floor(Math.random() * toastMessages.length)]);
+  setTimeout(randomToast, 25000 + Math.random() * 30000);
+}
+setTimeout(randomToast, 30000);
+</script>
+</body>
+</html>
