@@ -6,7 +6,7 @@ DISSOLVE - A fictional sublingual strip landing page. 'Dissolves in seconds. Lik
 *A fictional sublingual strip. Dissolves in seconds. Like your sense of self.*
 
 ## About
-DISSOLVE™ is a landing page for a fictional health product. The twist? Instead of listing side effects, you experience them — a creature runs across your screen, Farquaad judges you, the page gaslights you.
+DISSOLVE™ is a landing page for a fictional health product. The twist? Instead of listing side effects, you experience them - a creature runs across your screen, Farquaad judges you, the page gaslights you.
 
 ## Features
 - Rotating, glitching sublingual strip
